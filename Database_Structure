@@ -1,0 +1,68 @@
+The influx data base associated with moisture data monitoring of LaCima Ranch is listed below
+
+Currently only one data base is used to store data.
+The data base is ->  moisture_data
+Each data base can contain measurement series
+Currently there is only one series  moisture_a
+( Expect other series in the future like evaporative loss data )
+
+the structure of the records in the moisture_a data base is as follows
+
+Tag keys.  ( These keys are used to identify the record, but I have not found a way to use select on them)
+
+namespace
+sensor_number
+time_stamp
+
+Field keys ( These keys are actual data and can be used in the select statements )
+
+fieldKey         fieldType
+--------         ---------
+air_humidity     float  degrees f
+air_temperature  float  degree -f
+configuration    float ( 0 == not used, 1 = Watermark Gypsum, 2 = Resistive sensor )
+depth            float ( dept in inches)
+description      string
+namespace        string ( see remark below)
+resistive        float ohms
+sensor_number    integer ( each remote unit has up to 16 sensors )
+soil_temperature float degree F
+time_stamp       string  date-time measurement was taken
+value            float either ohm or cb for watermark
+
+
+Note on namespace.  Namespace is based upon graphical database used to build the system.  
+The general form is [ Relation ~ Label] value : Semicolon is end marker
+
+Right now my Relation and label are set to the same value.
+
+The sequence is the following progression
+SYSTEM
+SITE
+DATA_STORE
+MOISTURE_STORE -- moisture measurement
+MOISTURE_DATA  -- indvidual measurement
+
+in the actual data the key and data are concatented together.  Will work on that in future.
+
+example of name_sate
+
+u'namespace_1': u'[SYSTEM~SYSTEM]LaCima Operations:
+                  [SITE~SITE]LaCima:
+                  [DATA_STORE~DATA_STORE]LaCima_DataStore:
+                  [MOISTURE_STORE~MOISTURE_STORE]MOISTURE_STORE:
+                  [MOISTURE_DATA~MOISTURE_DATA]moisture_1:', 
+                  u'namespace':
+                  u'[SYSTEM~SYSTEM]LaCima Operations:
+                  [SITE~SITE]LaCima:
+                  [DATA_STORE~DATA_STORE]LaCima_DataStore:
+                  [MOISTURE_STORE~MOISTURE_STORE]MOISTURE_STORE:
+                  [MOISTURE_DATA~MOISTURE_DATA]moisture_1:'
+                  
+ In influxdb the data base is fixed by specifing the db or issuing a USE DATABASE command.
+ select statements apply to series in the database
+ 
+currently the select statement has the following form
+"select * from moisture_a "
+or 
+select value, depth, sensor_number from moisture_a where depth < 10.
