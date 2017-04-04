@@ -66,3 +66,7 @@ currently the select statement has the following form
 "select * from moisture_a "
 or 
 select value, depth, sensor_number from moisture_a where depth < 10.
+
+also time is allowed as a query object as time is an implicit field
+
+select value, depth, sensor_number from moisture_a where time > "2017-04-04"
