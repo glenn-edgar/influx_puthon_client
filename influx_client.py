@@ -32,4 +32,6 @@ if __name__ == "__main__":
    # print out fields
 
 
-   print influx_client.query( "select * from moisture_a ")
+   print influx_client.query( "select * from moisture_d ")
+   print "----->"
+   print influx_client.query(" select configuration, description, depth, sensor_number from moisture_d where time > '2017-04-03'")
