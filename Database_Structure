@@ -1,33 +1,45 @@
+
+
 The influx data base associated with moisture data monitoring of LaCima Ranch is listed below
 
 Currently only one data base is used to store data.
 The data base is ->  moisture_data
 Each data base can contain measurement series
-Currently there is only one series  moisture_a
+Currently there is only one series  moisture_d   NOTE THE CHANGE !!!!
 ( Expect other series in the future like evaporative loss data )
 
 the structure of the records in the moisture_a data base is as follows
 
-Tag keys.  ( These keys are used to identify the record, but I have not found a way to use select on them)
+Correction --> tag keys as well as field keys can be used in select statement.
+               if a tag and field has the same key which is not a good idea
+               then use <tag_key>::tag and <field_key>::field  to distingush 
 
-namespace
-sensor_number
-time_stamp
+Tags and Fields were rearranged to make a more efficient data base
 
-Field keys ( These keys are actual data and can be used in the select statements )
+time_stamp tag was dropped there is a time field that influxdb uses
+
+
+
+The tag fields are
+
+configuration   --- type of sensor  currently 1 or 2  
+description     --- note about the sensor
+                --- if the sensor is moved then the description will be changed and a new series starts
+namespace       --- used to id moisture controller data
+sensor_number   --- used to id sensor number of moisture controller 0-15 for current model
+
+
+tags are strings.  only fields can be sorted numerically.  That is why sensor depth is put in field key even though the depth does not 
+change.
+
 
 fieldKey         fieldType
 --------         ---------
 air_humidity     float  degrees f
 air_temperature  float  degree -f
-configuration    float ( 0 == not used, 1 = Watermark Gypsum, 2 = Resistive sensor )
 depth            float ( dept in inches)
-description      string
-namespace        string ( see remark below)
 resistive        float ohms
-sensor_number    integer ( each remote unit has up to 16 sensors )
 soil_temperature float degree F
-time_stamp       string  date-time measurement was taken
 value            float either ohm or cb for watermark
 
 
@@ -43,30 +55,24 @@ DATA_STORE
 MOISTURE_STORE -- moisture measurement
 MOISTURE_DATA  -- indvidual measurement
 
-in the actual data the key and data are concatented together.  Will work on that in future.
 
-example of name_sate
 
-u'namespace_1': u'[SYSTEM~SYSTEM]LaCima Operations:
-                  [SITE~SITE]LaCima:
-                  [DATA_STORE~DATA_STORE]LaCima_DataStore:
-                  [MOISTURE_STORE~MOISTURE_STORE]MOISTURE_STORE:
-                  [MOISTURE_DATA~MOISTURE_DATA]moisture_1:', 
-                  u'namespace':
-                  u'[SYSTEM~SYSTEM]LaCima Operations:
-                  [SITE~SITE]LaCima:
-                  [DATA_STORE~DATA_STORE]LaCima_DataStore:
-                  [MOISTURE_STORE~MOISTURE_STORE]MOISTURE_STORE:
-                  [MOISTURE_DATA~MOISTURE_DATA]moisture_1:'
+example of name_space
+
+'[SYSTEM~SYSTEM]LaCima Operations:
+ [SITE~SITE]LaCima:
+ [DATA_STORE~DATA_STORE]LaCima_DataStore:
+ [MOISTURE_STORE~MOISTURE_STORE]MOISTURE_STORE:
+ [MOISTURE_DATA~MOISTURE_DATA]moisture_1:'
                   
  In influxdb the data base is fixed by specifing the db or issuing a USE DATABASE command.
  select statements apply to series in the database
  
 currently the select statement has the following form
-"select * from moisture_a "
+"select * from moisture_d "
 or 
-select value, depth, sensor_number from moisture_a where depth < 10.
+select value, depth, sensor_number from moisture_d where depth < 10.
 
 also time is allowed as a query object as time is an implicit field
 
-select value, depth, sensor_number from moisture_a where time > "2017-04-04"
+select value, depth, sensor_number from moisture_d where time > "2017-04-04"
